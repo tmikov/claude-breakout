@@ -18,3 +18,9 @@ The game is not particularly impressive, but it is playable and has the followin
 - Different kinds of gifts: points, lives, floor, split balls, lasers.
 
 Collision detection and resolution isn't always great. Sometimes the ball gets inside bricks.
+
+## ChatGPT 4o Version
+
+I also spent some time creating a version with ChatGPT 4o. You can see it [here](./chatgpt-4o/).
+
+It is more primitive since I ran into length limitations and ChatGPT was unable to successfully split it into multiple files.

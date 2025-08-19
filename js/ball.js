@@ -27,16 +27,22 @@ class Ball {
         }
     }
 
-    move() {
+    move(game = null) {
         this.x += this.dx;
         this.y += this.dy;
 
         // Wall collisions
         if (this.x + this.radius > CONFIG.canvas.width || this.x - this.radius < 0) {
             this.dx = -this.dx;
+            if (game && game.soundManager) {
+                game.soundManager.playBounce();
+            }
         }
         if (this.y - this.radius < 0) {
             this.dy = -this.dy;
+            if (game && game.soundManager) {
+                game.soundManager.playBounce();
+            }
         }
 
         this.updateMeshPosition();

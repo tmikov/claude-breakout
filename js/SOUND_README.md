@@ -30,6 +30,8 @@ this.soundManager.playShoot();    // Projectile fired
 
 The sound system uses the Web Audio API and gracefully degrades if not supported. Audio context is automatically resumed on first user interaction to comply with browser autoplay policies.
 
+**GitHub Pages Compatibility**: The sound manager includes robust handling for strict browser autoplay policies encountered on HTTPS hosting (like GitHub Pages). It automatically detects and handles suspended audio contexts through multiple user interaction types (click, keydown, touchstart, pointerdown).
+
 ### Configuration
 
 Sound settings can be configured in `config.js`:

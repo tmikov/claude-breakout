@@ -7,7 +7,9 @@ class SoundManager {
         this.sounds = {};
         this.enabled = true;
         this.volume = 0.5;
+        this.audioContextResumed = false;
         this.createSounds();
+        this.setupUserInteractionListeners();
     }
 
     /**
@@ -93,6 +95,12 @@ class SoundManager {
             return;
         }
 
+        // Ensure audio context is in running state before playing
+        if (this.audioContext.state === 'suspended') {
+            console.warn('Audio context is suspended, cannot play sound:', soundName);
+            return;
+        }
+
         try {
             const source = this.audioContext.createBufferSource();
             const gainNode = this.audioContext.createGain();
@@ -147,12 +155,42 @@ class SoundManager {
     }
 
     /**
+     * Setup listeners for user interactions to resume audio context
+     * This ensures audio works on GitHub Pages and other strict environments
+     */
+    setupUserInteractionListeners() {
+        if (!this.audioContext) return;
+        
+        const resumeAudio = () => {
+            if (!this.audioContextResumed && this.audioContext.state === 'suspended') {
+                this.audioContext.resume().then(() => {
+                    this.audioContextResumed = true;
+                    console.log('Audio context resumed after user interaction');
+                }).catch(error => {
+                    console.warn('Failed to resume audio context:', error);
+                });
+            }
+        };
+        
+        // Listen for various user interaction events
+        const events = ['click', 'keydown', 'touchstart', 'pointerdown'];
+        events.forEach(event => {
+            document.addEventListener(event, resumeAudio, { once: true, passive: true });
+        });
+    }
+
+    /**
      * Resume audio context if it's suspended (needed for user interaction)
      * Must be called after user interaction due to browser autoplay policies
      */
     resumeAudioContext() {
         if (this.audioContext && this.audioContext.state === 'suspended') {
-            this.audioContext.resume();
+            this.audioContext.resume().then(() => {
+                this.audioContextResumed = true;
+                console.log('Audio context manually resumed');
+            }).catch(error => {
+                console.warn('Failed to manually resume audio context:', error);
+            });
         }
     }
 }

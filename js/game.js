@@ -101,9 +101,16 @@ class Game {
     setupEventListeners() {
         document.addEventListener('keydown', (e) => this.handleKeyDown(e));
         document.addEventListener('keyup', (e) => this.handleKeyUp(e));
+        
+        // Add click and touch listeners to ensure audio context resume
+        document.addEventListener('click', () => this.soundManager.resumeAudioContext(), { passive: true });
+        document.addEventListener('touchstart', () => this.soundManager.resumeAudioContext(), { passive: true });
     }
 
     handleKeyDown(e) {
+        // Ensure audio context is resumed on any key interaction
+        this.soundManager.resumeAudioContext();
+        
         switch (e.key) {
             case 'ArrowLeft':
                 this.paddle.moving.left = true;
@@ -114,8 +121,6 @@ class Game {
             case ' ':
                 if (this.gameState === 'prepare') {
                     this.gameState = 'playing';
-                    // Resume audio context on first user interaction
-                    this.soundManager.resumeAudioContext();
                 } else if (this.gameState === 'playing' && this.paddle.canShootNow()) {
                     // Add new projectiles when space is pressed
                     const newProjectiles = this.paddle.shoot(this);

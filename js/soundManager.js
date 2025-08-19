@@ -1,3 +1,7 @@
+/**
+ * SoundManager - Handles all sound effects for the breakout game
+ * Uses Web Audio API to generate programmatic sound effects
+ */
 class SoundManager {
     constructor() {
         this.sounds = {};
@@ -6,9 +10,18 @@ class SoundManager {
         this.createSounds();
     }
 
+    /**
+     * Initialize Web Audio Context and create sound buffers
+     */
     createSounds() {
         // Create simple programmatic sound effects using Web Audio API
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (error) {
+            console.warn('Web Audio API not supported, sounds will be disabled:', error);
+            this.enabled = false;
+            return;
+        }
         
         // Pre-generate sound buffers for better performance
         this.sounds = {
@@ -71,8 +84,12 @@ class SoundManager {
         return buffer;
     }
 
+    /**
+     * Play a specific sound effect
+     * @param {string} soundName - Name of the sound to play ('bounce', 'destroy', 'shoot')
+     */
     playSound(soundName) {
-        if (!this.enabled || !this.sounds[soundName]) {
+        if (!this.enabled || !this.audioContext || !this.sounds[soundName]) {
             return;
         }
 
@@ -92,29 +109,49 @@ class SoundManager {
         }
     }
 
+    /**
+     * Play bounce sound effect (for ball hitting walls, paddle, or unbreakable bricks)
+     */
     playBounce() {
         this.playSound('bounce');
     }
 
+    /**
+     * Play destruction sound effect (for breaking blocks)
+     */
     playDestroy() {
         this.playSound('destroy');
     }
 
+    /**
+     * Play shooting sound effect (for firing projectiles)
+     */
     playShoot() {
         this.playSound('shoot');
     }
 
+    /**
+     * Set the volume level for all sounds
+     * @param {number} volume - Volume level between 0.0 and 1.0
+     */
     setVolume(volume) {
         this.volume = Math.max(0, Math.min(1, volume));
     }
 
+    /**
+     * Enable or disable sound effects
+     * @param {boolean} enabled - Whether sounds should be enabled
+     */
     setEnabled(enabled) {
         this.enabled = enabled;
     }
 
-    // Resume audio context if it's suspended (needed for user interaction)
+    /**
+     * Resume audio context if it's suspended (needed for user interaction)
+     * Must be called after user interaction due to browser autoplay policies
+     */
     resumeAudioContext() {
-        if (this.audioContext.state === 'suspended') {
+        if (this.audioContext && this.audioContext.state === 'suspended') {
             this.audioContext.resume();
         }
     }

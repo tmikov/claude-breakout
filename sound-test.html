@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Test</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Breakout Sound Effects Test</h1>
+    <p>Click the buttons below to test the sound effects:</p>
+    
+    <button id="bounceBtn">Play Bounce Sound</button>
+    <button id="destroyBtn">Play Destroy Sound</button>
+    <button id="shootBtn">Play Shoot Sound</button>
+    
+    <p id="status">Status: Ready</p>
+    
+    <script src="js/soundManager.js"></script>
+    <script>
+        let soundManager;
+        
+        function initSound() {
+            try {
+                soundManager = new SoundManager();
+                document.getElementById('status').textContent = 'Status: Sound system initialized';
+            } catch (error) {
+                document.getElementById('status').textContent = 'Status: Error - ' + error.message;
+                console.error('Sound initialization error:', error);
+            }
+        }
+        
+        document.getElementById('bounceBtn').addEventListener('click', () => {
+            if (soundManager) {
+                soundManager.resumeAudioContext();
+                soundManager.playBounce();
+                document.getElementById('status').textContent = 'Status: Playing bounce sound';
+            }
+        });
+        
+        document.getElementById('destroyBtn').addEventListener('click', () => {
+            if (soundManager) {
+                soundManager.resumeAudioContext();
+                soundManager.playDestroy();
+                document.getElementById('status').textContent = 'Status: Playing destroy sound';
+            }
+        });
+        
+        document.getElementById('shootBtn').addEventListener('click', () => {
+            if (soundManager) {
+                soundManager.resumeAudioContext();
+                soundManager.playShoot();
+                document.getElementById('status').textContent = 'Status: Playing shoot sound';
+            }
+        });
+        
+        // Initialize sound system when page loads
+        window.addEventListener('load', initSound);
+    </script>
+</body>
+</html>

@@ -6,6 +6,7 @@ class Game {
         this.setupScene();
         this.particleSystem = new ParticleSystem(this.scene);
         this.ballTrailSystem = new BallTrailSystem(this.scene);
+        this.soundManager = new SoundManager();
         this.setupUI();
         this.reset();
         this.setupEventListeners();
@@ -113,10 +114,16 @@ class Game {
             case ' ':
                 if (this.gameState === 'prepare') {
                     this.gameState = 'playing';
+                    // Resume audio context on first user interaction
+                    this.soundManager.resumeAudioContext();
                 } else if (this.gameState === 'playing' && this.paddle.canShootNow()) {
                     // Add new projectiles when space is pressed
                     const newProjectiles = this.paddle.shoot(this);
-                    this.projectiles.push(...newProjectiles);
+                    if (newProjectiles.length > 0) {
+                        this.projectiles.push(...newProjectiles);
+                        // Play shooting sound
+                        this.soundManager.playShoot();
+                    }
                 }
                 break;
             case 'p':
@@ -258,6 +265,9 @@ class Game {
                     // Handle brick hit
                     if (brick.type !== 'unbreakable') {
                         if (brick.hit()) {
+                            // Play destruction sound
+                            this.soundManager.playDestroy();
+                            
                             // Create explosion
                             const position = new THREE.Vector3(
                                 brick.mesh.position.x,
@@ -281,7 +291,13 @@ class Game {
 
                             this.scene.remove(brick.mesh);
                             this.bricks.splice(j, 1);
+                        } else {
+                            // Brick was hit but not destroyed (multiHit brick)
+                            this.soundManager.playBounce();
                         }
+                    } else {
+                        // Projectile hit unbreakable brick
+                        this.soundManager.playBounce();
                     }
                     break;
                 }
@@ -311,6 +327,9 @@ class Game {
 
             ball.dx = speed * Math.sin(angle);
             ball.dy = -speed * Math.cos(angle);
+            
+            // Play bounce sound
+            this.soundManager.playBounce();
         }
     }
 
@@ -326,6 +345,9 @@ class Game {
                     ball.dy = -ball.dy;
 
                     if (brick.hit()) {
+                        // Play destruction sound
+                        this.soundManager.playDestroy();
+                        
                         // Create explosion at brick position
                         const position = new THREE.Vector3(
                             brick.mesh.position.x,
@@ -349,9 +371,14 @@ class Game {
 
                         this.scene.remove(brick.mesh);
                         this.bricks.splice(i, 1);
+                    } else {
+                        // Brick was hit but not destroyed (multiHit brick)
+                        this.soundManager.playBounce();
                     }
                 } else {
                     ball.dy = -ball.dy;
+                    // Play bounce sound for unbreakable bricks
+                    this.soundManager.playBounce();
                 }
             }
         }
@@ -401,7 +428,7 @@ class Game {
 
         // Update and filter out lost balls
         this.balls = this.balls.filter(ball => {
-            ball.move();
+            ball.move(this);
 
             if (ball.y + ball.radius > CONFIG.canvas.height) {
                 if (this.floorActive) {

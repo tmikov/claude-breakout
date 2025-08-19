@@ -61,5 +61,9 @@ const CONFIG = {
                 shootDelay: 100 // Minimum time between shots in milliseconds
             }
         }
+    },
+    sound: {
+        enabled: true,
+        volume: 0.5
     }
 };
